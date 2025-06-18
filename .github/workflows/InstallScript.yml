@@ -1,0 +1,13 @@
+# name: Install Script Workflow
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo example
+        run: echo "Install script would run here"
