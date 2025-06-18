@@ -1,0 +1,19 @@
+# name: Hardware Compatibility Matrix
+# 
+# on:
+#   workflow_dispatch:  # manual trigger for testing
+
+jobs:
+  test-virtualbox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate VirtualBox build
+        run: echo "Would test VirtualBox-compatible image here"
+
+  test-qemu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Boot with QEMU
+        run: |
+          sudo apt update && sudo apt install -y qemu-system
+          echo "Would boot ISO using QEMU here"

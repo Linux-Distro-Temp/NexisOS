@@ -1,0 +1,42 @@
+# name: Build Distro Image
+# 
+# on:
+#   workflow_dispatch:  # Manual trigger for testing
+#   push:
+#     paths:
+#       - 'build/**'
+#       - 'configs/**'
+#       - '.github/workflows/build.yml'
+
+jobs:
+  build-distro:
+    name: Build Linux Distro ISO
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debootstrap \
+            xorriso \
+            squashfs-tools \
+            grub-pc-bin \
+            grub-efi-amd64-bin \
+            genisoimage \
+            mtools \
+            dosfstools
+
+      - name: Build base system
+        run: |
+          chmod +x ./build/build.sh
+          ./build/build.sh
+
+      - name: Verify ISO was created
+        run: |
+          if [ ! -f out/my-distro.iso ]; then
+            echo "ISO build failed"
+            exit 

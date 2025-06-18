@@ -1,0 +1,47 @@
+# name: Package Manager CI
+# 
+# on:
+#   workflow_dispatch:  # Manual trigger for now; safe for dev/testing
+#   push:
+#     paths:
+#       - 'pkgs/**'
+#       - '.github/workflows/package-manager.yml'
+
+jobs:
+  lint-packages:
+    name: Lint Package Definitions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run ShellCheck on build scripts
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          find pkgs -type f -name '*.sh' | xargs -I {} shellcheck {}
+
+      - name: Validate YAML/JSON package manifests
+        run: |
+          pip install yamllint
+          yamllint pkgs/
+
+  test-package-build:
+    name: Test Package Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - coreutils
+          - bash
+          - nano
+          - your-package-name-here
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build ${{ matrix.package }}
+        run: |
+          chmod +x ./scripts/build.sh
+          ./scripts/build.sh ${{ matrix.package }}
