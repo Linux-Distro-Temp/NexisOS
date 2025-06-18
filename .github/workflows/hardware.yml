@@ -1,7 +1,7 @@
-# name: Hardware Compatibility Matrix
-# 
-# on:
-#   workflow_dispatch:  # manual trigger for testing
+name: Hardware Compatibility Matrix
+
+on:
+  workflow_dispatch:  # manual trigger for testing
 
 jobs:
   test-virtualbox:

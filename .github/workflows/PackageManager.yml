@@ -1,11 +1,11 @@
-# name: Package Manager CI
-# 
-# on:
-#   workflow_dispatch:  # Manual trigger for now; safe for dev/testing
-#   push:
-#     paths:
-#       - 'pkgs/**'
-#       - '.github/workflows/package-manager.yml'
+name: Package Manager CI
+
+on:
+  workflow_dispatch:  # Manual trigger for now; safe for dev/testing
+#  push:
+#    paths:
+#      - 'pkgs/**'
+#      - '.github/workflows/package-manager.yml'
 
 jobs:
   lint-packages:
