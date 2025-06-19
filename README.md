@@ -2,6 +2,7 @@
 Main repo for distro
 
 ## Possible Directory Layout
+```text
 NexisOS/
 ├── buildroot/ # Official Buildroot source tree (cloned)
 │ ├── package/ # Buildroot packages (includes dialog)
@@ -30,3 +31,4 @@ NexisOS/
 ├── README.md
 ├── LICENSE
 └── .gitignore
+```
