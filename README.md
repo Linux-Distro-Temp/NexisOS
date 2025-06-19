@@ -55,7 +55,7 @@ NexisOS/
 <details>
 <summary>Click to see possible TOML config example</summary>
 
-```text
+```toml
 [system]
 hostname = "myhost"
 timezone = "UTC"
