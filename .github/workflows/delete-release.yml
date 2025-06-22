@@ -1,0 +1,28 @@
+name: Delete Release on Tag Deletion
+
+on:
+  delete:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  delete_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME=${{ github.event.ref }}
+          echo "Looking for a release with tag: $TAG_NAME"
+
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases \
+            --jq ".[] | select(.tag_name==\"$TAG_NAME\") | .id")
+
+          if [ -n "$RELEASE_ID" ]; then
+            echo "Deleting release ID $RELEASE_ID for tag $TAG_NAME"
+            gh api -X DELETE repos/${{ github.repository }}/releases/$RELEASE_ID
+          else
+            echo "No release found for tag $TAG_NAME"
+          fi
+        shell: bash
