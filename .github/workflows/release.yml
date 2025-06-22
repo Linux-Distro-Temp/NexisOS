@@ -1,17 +1,41 @@
-- name: Generate release body
-  id: generate_release_body
-  run: |
-    cat <<EOF >> $GITHUB_OUTPUT
-    body<<EOT
-    ## NexisOS ${{ github.ref_name }}
+name: Create Release on Tag
 
-    This is a pre-alpha development snapshot of NexisOS.
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Matches tags like v0.1.0, v1.2.3
 
-    ### 🚧 Status
-    - Initial tag for bootstrapping the OS
-    - GitHub Actions release flow implemented
-    - ISO not yet available (build system in progress)
+jobs:
+  release:
+    runs-on: ubuntu-latest
 
-    ⚠️ Not a usable OS release yet — for devs and testers only.
-    EOT
-    EOF
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate release body
+        id: generate_release_body
+        run: |
+          cat <<EOF >> $GITHUB_OUTPUT
+          body<<EOT
+          ## NexisOS ${{ github.ref_name }}
+
+          This is a pre-alpha development snapshot of NexisOS.
+
+          ### 🚧 Status
+          - Initial tag for bootstrapping the OS
+          - GitHub Actions release flow implemented
+          - ISO not yet available (build system in progress)
+
+          ⚠️ Not a usable OS release yet — for devs and testers only.
+          EOT
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: NexisOS ${{ github.ref_name }}
+          body: ${{ steps.generate_release_body.outputs.body }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
