@@ -1,20 +1,18 @@
-name: Create Release on Tag
+- name: Create GitHub Release
+  uses: softprops/action-gh-release@v1
+  with:
+    tag_name: ${{ github.ref_name }}
+    name: NexisOS ${{ github.ref_name }}
+    body: |
+      ## NexisOS ${{ github.ref_name }}
 
-on:
-  push:
-    tags:
-      - 'v*.*.*'  # triggers on tags like v0.1.0, v1.2.3, etc.
+      This is a pre-alpha development snapshot of NexisOS.
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      ### 🚧 Status
+      - Initial tag for bootstrapping the OS
+      - GitHub Actions release flow implemented
+      - ISO not yet available (build system in progress)
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ⚠️ Not a usable OS release yet — for devs and testers only.
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
