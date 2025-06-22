@@ -7,7 +7,7 @@ This project uses [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.1.0] - 2025-06-22
+## [0.1.0] - 2025-06-21
 
 ### Added
 - Initial repository structure for NexisOS
