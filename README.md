@@ -1,5 +1,17 @@
 # NexisOS
-Main repo for distro
+Main repository for the NexisOS Linux distribution, containing core build infrastructure, package manager source, configuration examples, and tooling.
+
+---
+
+## 🔽 Download ISO
+
+You can try the latest ISO build of NexisOS by downloading it from SourceForge:
+
+👉 [Download NexisOS ISO](https://sourceforge.net/projects/nexisos/files/latest/download)
+
+> ⚠️ *Note: The ISO is currently experimental and intended for testing and feedback. Expect rapid iteration and updates.*
+
+---
 
 ## 📁 Possible Directory Layout
 
