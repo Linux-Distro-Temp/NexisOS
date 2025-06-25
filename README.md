@@ -20,29 +20,18 @@ You can try the latest ISO build of NexisOS by downloading it from SourceForge:
 
 ```text
 NexisOS/
-├── buildroot/                  # Official Buildroot source tree (cloned)
-│   ├── package/                # Buildroot packages (includes dialog)
-│   │   ├── dialog/             # dialog package directory
-│   │   │   ├── Config.in       # Buildroot package config for dialog
-│   │   │   ├── dialog.mk       # Buildroot package Makefile for dialog
-│   │   │   └── ...             # Other package files (patches, etc.)
-│   │   ├── busybox/
-│   │   ├── ...
-│   ├── configs/                # Buildroot configuration files (.config, defconfigs)
-│   ├── output/                 # Build output files (ISO, rootfs, kernel, etc.)
-│   ├── board/                  # Board support packages (optional)
-│   └── ...                     # Other Buildroot files and directories
+├── buildroot/                # Buildroot source tree
+│   ├── board/
+│   │   └── nexisos/
+│   │       ├── install.sh    # Installer script (uses dialog)
+│   │       └── post-build.sh # Hook to modify final image
+│   ├── configs/
+│   │   └── NexisOS_defconfig # Minimal config to build NexisOS ISO
+│   └── ...                   # Other Buildroot internals
 │
-├── board/<your_board>/         # Board-specific files and overlays
-│   └── rootfs_overlay/         # Files to include in root filesystem
-│       ├── usr/bin/install.sh  # Installer script (uses dialog)
-│       └── etc/systemd/system/ # Optional systemd service files
-│
-├── scripts/                    # Development scripts (e.g. install.sh using dialog)
-│
-├── package_manager/            # Custom package manager source code
-│   ├── Cargo.toml              # Rust project manifest
-│   └── src/                    # Rust source files
+├── package_manager/          # NexisOS package manager (Rust)
+│   ├── Cargo.toml
+│   └── src/
 │       ├── cli.rs
 │       ├── config.rs
 │       ├── main.rs
@@ -53,16 +42,30 @@ NexisOS/
 │       ├── types.rs
 │       └── util.rs
 │
-├── configs/                    # Custom Buildroot defconfig files
-│
-├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── LICENSE
-└── .gitignore
+├── README.md
+├── SECURITY.md
+└── VERSION
 ```
 
 </details>
 
-##  ⚙️ Possible toml config
+## 🛠️ Build the NexisOS ISO
+To build the ISO using one of the provided Buildroot defconfig files:
+```sh
+cd buildroot
+make BR2_DEFCONFIG=configs/NexisOS_defconfig defconfig
+make
+```
+
+After the build completes, the ISO and related images will be located in:
+```sh
+ls output/images
+```
+
+## ⚙️ Possible toml config
 
 <details>
 <summary>Click to see possible TOML config example</summary>
