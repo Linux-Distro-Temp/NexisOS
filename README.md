@@ -20,49 +20,62 @@ You can try the latest ISO build of NexisOS by downloading it from SourceForge:
 
 ```text
 NexisOS/
-├── buildroot/                # Buildroot source tree
-│   ├── board/
-│   │   └── nexisos/
-│   │       ├── install.sh    # Installer script (uses dialog)
-│   │       └── post-build.sh # Hook to modify final image
-│   ├── configs/
-│   │   └── NexisOS_defconfig # Minimal config to build NexisOS ISO
-│   └── ...                   # Other Buildroot internals
+├── depends/                           # All custom code, tools, and scripts
+│   ├── configs/                       # Defconfig used to build NexisOS minimal installer Iso
+│   │   ├── nexisos_x86_64_defconfig
+│   │   ├── nexisos_aarch64_defconfig
+│   │   └── nexisos_riscv64_defconfig
+│   ├── package_manager/               # NexisOS package manager (written in Rust)
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   │       ├── cli.rs
+│   │       ├── config.rs
+│   │       ├── main.rs
+│   │       ├── manifest.rs
+│   │       ├── packages.rs
+│   │       ├── rollback.rs  
+│   │       ├── store.rs
+│   │       ├── types.rs
+│   │       └── util.rs
+│   └── scripts/                       # Installer and post-install scripts
+│       ├── install.sh
+│       └── post-install.sh
 │
-├── package_manager/          # NexisOS package manager (Rust)
-│   ├── Cargo.toml
-│   └── src/
-│       ├── cli.rs
-│       ├── config.rs
-│       ├── main.rs
-│       ├── manifest.rs
-│       ├── packages.rs
-│       ├── rollback.rs
-│       ├── store.rs
-│       ├── types.rs
-│       └── util.rs
-│
+├── Makefile                           # Entry point to build NexisOS minimal installer Iso
+├── README.md
+├── LICENSE
+├── VERSION
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
-├── LICENSE
-├── README.md
-├── SECURITY.md
-└── VERSION
+└── SECURITY.md
 ```
 
 </details>
 
+## 🔧 Prerequisites
+Make sure you have the following Prj dependencies
+- Buildroot 
+    - build-essential, make, git
+    - python3, wget, unzip, rysnc, cpio
+    - libncurses-dev, libssl-dev, bc, flex, bison, curl
+- Prj
+    - package manager
+        - rustup
+    - dialog
+    - qemu
+        - 
+
 ## 🛠️ Build the NexisOS ISO
 To build the ISO using one of the provided Buildroot defconfig files:
 ```sh
-cd buildroot
-make BR2_DEFCONFIG=configs/NexisOS_defconfig defconfig
-make
+make              # Builds x86_64 by default
+make ARCH=aarch64 # Builds using nexisos_aarch64_defconfig
+make ARCH=riscv64 # Builds using nexisos_riscv64_defconfig
 ```
 
 After the build completes, the ISO and related images will be located in:
 ```sh
-ls output/images
+buildroot/output/images
 ```
 
 ## ⚙️ Possible toml config
