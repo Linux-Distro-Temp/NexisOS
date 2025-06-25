@@ -54,16 +54,31 @@ NexisOS/
 
 ## 🔧 Prerequisites
 Make sure you have the following Prj dependencies
-- Buildroot 
-    - build-essential, make, git
-    - python3, wget, unzip, rysnc, cpio
-    - libncurses-dev, libssl-dev, bc, flex, bison, curl
-- Prj
-    - package manager
-        - rustup
-    - dialog
-    - qemu
-        - 
+```text
+Buildroot
+├── build-essential
+├── make
+├── git
+├── python3
+├── wget
+├── unzip
+├── rsync
+├── cpio
+├── libncurses-dev
+├── libssl-dev
+├── bc
+├── flex
+├── bison
+└── curl
+
+Prj
+├── package_manager
+│   └── rustup
+├── dialog
+└── qemu/
+    └── ovmf # UEFI support
+```
+
 
 ## 🛠️ Build the NexisOS ISO
 To build the ISO using one of the provided Buildroot defconfig files:
