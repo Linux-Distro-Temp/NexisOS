@@ -22,9 +22,13 @@ You can try the latest ISO build of NexisOS by downloading it from SourceForge:
 NexisOS/
 ├── depends/                           # All custom code, tools, and scripts
 │   ├── configs/                       # Defconfig used to build NexisOS minimal installer Iso
-│   │   ├── nexisos_x86_64_defconfig
-│   │   ├── nexisos_aarch64_defconfig
-│   │   └── nexisos_riscv64_defconfig
+│   │   ├── NexisOS_x86_64_defconfig
+│   │   ├── NexisOS_aarch64_defconfig
+│   │   └── NexisOS_riscv64_defconfig
+│   ├── kernel-configs/                # Linux kernel config files per arch
+│   │   ├── linux-x86_64.config
+│   │   ├── linux-aarch64.config
+│   │   └── linux-riscv64.config
 │   ├── package_manager/               # NexisOS package manager (written in Rust)
 │   │   ├── Cargo.toml
 │   │   └── src/
@@ -80,6 +84,8 @@ Prj
 
 
 ## 🛠️ Build the NexisOS ISO
+Project should be put in same directory level as buildroot
+
 To build the ISO using one of the provided Buildroot defconfig files:
 ```sh
 make              # Builds x86_64 by default
@@ -90,6 +96,19 @@ make ARCH=riscv64 # Builds using nexisos_riscv64_defconfig
 After the build completes, the ISO and related images will be located in:
 ```sh
 buildroot/output/images
+```
+
+## 🖥️ Running NexisOS in QEMU for Testing
+Example
+```sh
+qemu-system-x86_64 \
+  -m 2048 \
+  -bios /usr/share/OVMF/OVMF_CODE.fd \
+  -cdrom buildroot/output/images/nexisos.iso \
+  -boot d \
+  -enable-kvm \
+  -net nic -net user \
+  -serial stdio
 ```
 
 ## ⚙️ Possible toml config
