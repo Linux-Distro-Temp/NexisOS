@@ -1,118 +1,74 @@
 #!/bin/sh
+set -e
 
-# Ensure root privileges
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root!" 1>&2
-    exit 1
+# Root check
+[ "$(id -u)" -eq 0 ] || { echo "Must run as root" >&2; exit 1; }
+
+whiptail --msgbox "Welcome to NexisOS Installer" 6 40
+
+DISK=$(whiptail --title "Disk Selection" --menu "Select disk" 15 50 4 \
+  /dev/sda "Primary Disk" /dev/sdb "Secondary Disk" /dev/nvme0n1 "NVMe SSD" 3>&1 1>&2 2>&3)
+
+KERNEL_TYPE=$(whiptail --title "Kernel" --menu "Select kernel" 10 40 2 \
+  vanilla "Vanilla Kernel" hardened "Hardened Kernel" 3>&1 1>&2 2>&3)
+
+DE_TYPE=$(whiptail --title "Desktop Env" --menu "Choose DE / WM" 15 50 5 \
+  i3 "i3 WM" xfce "XFCE DE" gnome "GNOME DE" none "No GUI" 3>&1 1>&2 2>&3)
+
+if ! whiptail --yesno "Install NexisOS on $DISK with:\nKernel: $KERNEL_TYPE\nDE: $DE_TYPE\nProceed?" 10 50; then
+  whiptail --msgbox "Installation cancelled." 5 40
+  exit 0
 fi
 
-# Welcome message
-dialog --msgbox "Welcome to NexisOS Installer" 6 40
+MNT="/mnt/nexisos"
+STEP=0
 
-# Select disk for installation
-DISK=$(dialog --stdout --menu "Select the disk to install NexisOS" 15 50 4 \
-  /dev/sda "Disk 1 (Primary)" \
-  /dev/sdb "Disk 2 (Secondary)" \
-  /dev/sdc "Disk 3 (External)" \
-  /dev/nvme0n1 "NVMe SSD")
+progress() {
+  echo "XXX"
+  echo "$1"
+  echo "XXX"
+  echo "$2"
+}
 
-# Partition the disk (using `fdisk` or `parted`)
-dialog --infobox "Partitioning the disk..." 3 30
-echo -e "o\nn\np\n1\n\n\nw" | fdisk $DISK
+(
+progress "Partitioning disk..." $((STEP+=15))
+parted -s "$DISK" mklabel gpt
+parted -s "$DISK" mkpart primary ext4 1MiB 100%
+PART="${DISK}1"
+sleep 1
 
-# Format the new partition to ext4
-dialog --infobox "Formatting the partition..." 3 30
-mkfs.ext4 ${DISK}1
+progress "Formatting partition..." $((STEP+=15))
+mkfs.ext4 "$PART"
 
-# Mount the new partition
-MOUNT_DIR="/mnt/nexisos"
-mkdir -p $MOUNT_DIR
-mount ${DISK}1 $MOUNT_DIR
+progress "Mounting partition..." $((STEP+=5))
+mkdir -p "$MNT"
+mount "$PART" "$MNT"
 
-# Download the root filesystem (optional - if you want to fetch a tarball)
-dialog --infobox "Downloading the root filesystem..." 3 40
-wget -O $MOUNT_DIR/rootfs.tar.gz http://your-server-ip/rootfs.tar.gz
+progress "Extracting base system..." $((STEP+=20))
+tar -xzf /nexis/rootfs.tar.gz -C "$MNT"
 
-# Extract the root filesystem
-dialog --infobox "Extracting the root filesystem..." 3 40
-tar -xzf $MOUNT_DIR/rootfs.tar.gz -C $MOUNT_DIR
+progress "Installing $KERNEL_TYPE kernel..." $((STEP+=10))
+cp "/nexis/kernels/${KERNEL_TYPE}-vmlinuz" "$MNT/boot/vmlinuz"
 
-# Kernel selection: Vanilla or Hardened?
-KERNEL_TYPE=$(dialog --stdout --menu "Select the Kernel" 15 50 2 \
-  vanilla "Vanilla Kernel" \
-  hardened "Hardened Kernel")
+progress "Installing init system..." $((STEP+=10))
+tar -xzf /nexis/init/dinit.tar.gz -C "$MNT"
+ln -sf /dinit/dinit "$MNT/init"
 
-case $KERNEL_TYPE in
-    vanilla)
-        dialog --infobox "Installing Vanilla Kernel..." 3 30
-        wget -O $MOUNT_DIR/boot/vmlinuz http://your-server-ip/vanilla-vmlinuz
-        ;;
-    hardened)
-        dialog --infobox "Installing Hardened Kernel..." 3 30
-        wget -O $MOUNT_DIR/boot/vmlinuz http://your-server-ip/hardened-vmlinuz
-        ;;
-    *)
-        dialog --msgbox "Invalid option selected, exiting installer." 6 40
-        exit 1
-        ;;
-esac
+progress "Installing Desktop Environment..." $((STEP+=20))
+chroot "$MNT" /bin/sh -c "
+  nexpkg update
+  case $DE_TYPE in
+    i3) nexpkg install i3 i3status i3lock ;;
+    xfce) nexpkg install xfce lightdm ;;
+    gnome) nexpkg install gnome gdm ;;
+    none) echo 'No GUI selected.' ;;
+  esac
+"
 
-# Install dinit (the init system)
-dialog --infobox "Installing dinit..." 3 30
-wget -O $MOUNT_DIR/dinit.tar.gz http://your-server-ip/dinit.tar.gz
+progress "Installing GRUB bootloader..." $((STEP+=10))
+grub-install --target=i386-pc --boot-directory="$MNT/boot" "$DISK"
 
-# Extract dinit
-tar -xzf $MOUNT_DIR/dinit.tar.gz -C $MOUNT_DIR
-
-# Create symlink for dinit to be the init system
-ln -s /dinit/dinit /mnt/nexisos/init
-
-# Window Manager or Desktop Environment Selection
-DE_TYPE=$(dialog --stdout --menu "Select your Window Manager or Desktop Environment" 15 50 4 \
-  i3 "i3 (Window Manager)" \
-  openbox "Openbox (Window Manager)" \
-  xfce "Xfce (Desktop Environment)" \
-  gnome "GNOME (Desktop Environment)" \
-  kde "KDE Plasma (Desktop Environment)")
-
-case $DE_TYPE in
-    i3)
-        dialog --infobox "Installing i3 Window Manager..." 3 30
-        # Install i3 and required packages
-        apt-get install -y i3 i3status i3lock
-        ;;
-    openbox)
-        dialog --infobox "Installing Openbox Window Manager..." 3 30
-        # Install Openbox and required packages
-        apt-get install -y openbox obconf tint2
-        ;;
-    xfce)
-        dialog --infobox "Installing Xfce Desktop Environment..." 3 30
-        # Install XFCE and required packages
-        apt-get install -y xfce4 xfce4-goodies lightdm
-        ;;
-    gnome)
-        dialog --infobox "Installing GNOME Desktop Environment..." 3 30
-        # Install GNOME and required packages
-        apt-get install -y gnome-shell gdm3
-        ;;
-    kde)
-        dialog --infobox "Installing KDE Plasma Desktop Environment..." 3 30
-        # Install KDE Plasma and required packages
-        apt-get install -y kde-plasma-desktop sddm
-        ;;
-    *)
-        dialog --msgbox "Invalid option selected, exiting installer." 6 40
-        exit 1
-        ;;
-esac
-
-# Install the bootloader (GRUB or Syslinux)
-dialog --infobox "Installing bootloader..." 3 30
-grub-install --target=i386-pc --boot-directory=$MOUNT_DIR/boot $DISK
-
-# Create the GRUB configuration
-cat > $MOUNT_DIR/boot/grub/grub.cfg <<EOF
+cat > "$MNT/boot/grub/grub.cfg" <<EOF
 set default=0
 set timeout=5
 
@@ -122,6 +78,9 @@ menuentry "NexisOS" {
 }
 EOF
 
-# Finalize installation
-dialog --msgbox "Installation complete! Please reboot." 6 40
+progress "Finishing installation..." 100
+
+) | whiptail --title "Installing NexisOS..." --gauge "Please wait..." 10 60 0
+
+whiptail --msgbox "Installation complete! Rebooting now." 6 40
 reboot

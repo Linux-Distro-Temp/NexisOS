@@ -74,8 +74,7 @@ Buildroot
 Prj
 ├── package_manager
 │   └── rustup
-├── dialog
-└── qemu/
+└── qemu
     └── ovmf # UEFI support
 ```
 
