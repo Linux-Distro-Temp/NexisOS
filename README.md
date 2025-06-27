@@ -57,7 +57,10 @@ NexisOS/
 </details>
 
 ## 🔧 Prerequisites
-Make sure you have the following Prj dependencies
+
+<details>
+<summary>Click to see if you have the following Prj dependencies</summary>
+
 ```text
 Buildroot
 ├── build-essential
@@ -82,9 +85,14 @@ Prj
     └── ovmf # UEFI support
 ```
 
+</details>
+
 
 ## 🛠️ Build the NexisOS ISO
 Project should be put in same directory level as buildroot
+
+<details>
+<summary>Click to see how to build iso</summary>
 
 To build the ISO using one of the provided Buildroot defconfig files:
 ```sh
@@ -98,8 +106,13 @@ After the build completes, the ISO and related images will be located in:
 buildroot/output/images
 ```
 
+</details>
+
 ## 🖥️ Running NexisOS in QEMU for Testing
-Example
+
+<details>
+<summary>Click to see how to test distro in virt</summary>
+
 ```sh
 qemu-system-x86_64 \
   -m 2048 \
@@ -110,6 +123,8 @@ qemu-system-x86_64 \
   -net nic -net user \
   -serial stdio
 ```
+
+</details>
 
 ## ⚙️ Possible toml config
 
