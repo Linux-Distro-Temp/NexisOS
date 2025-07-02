@@ -1,0 +1,4 @@
+config BR2_PACKAGE_NEXPM
+	bool "nexpm - NexisOS Package Manager"
+	help
+	  Nexpm is the Rust-based package manager for NexisOS.
